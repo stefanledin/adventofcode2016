@@ -14,7 +14,7 @@ class TestTLSSupport extends TestCase {
     public function test_finds_xyyx()
     {
         $ip = 'abcd[bddb]xyyx';
-        $this->assertTrue((new TLSSupport($ip))->check());
+        $this->assertFalse((new TLSSupport($ip))->check());
     }
 
     public function test_dont_find_aaaa()
