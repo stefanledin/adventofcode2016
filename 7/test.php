@@ -29,4 +29,15 @@ class TestTLSSupport extends TestCase {
         $this->assertTrue((new TLSSupport($ip))->check());
     }
 
+    public function test_multiple_brackets()
+    {
+        $ip = 'abcd[acbddbef]xyyx[acbddbef]';
+        $this->assertFalse((new TLSSupport($ip))->check());
+    }
+
+    public function test_part_2()
+    {
+        
+    }
+
 }
