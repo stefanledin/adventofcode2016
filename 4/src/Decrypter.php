@@ -6,12 +6,14 @@ use Illuminate\Support\Collection;
 
 class Decrypter {
 
+    protected $name;
     protected $checksum;
     protected $letters;
     protected $sectorID;
 
     public function __construct($name)
     {
+        $this->name = $name;
         // Extrahera checksum
         $this->extractChecksum($name);
         // Bokstäver
@@ -33,6 +35,28 @@ class Decrypter {
     public function getLetters()
     {
         return $this->letters;
+    }
+
+    public function getRealName()
+    {
+        preg_match('/\D+/', $this->name, $letters);
+        preg_match('/\d+/', $this->name, $sectorID);
+        $letters = str_split(array_shift($letters));
+        array_pop($letters);
+        $sectorID = (int) array_shift($sectorID);
+        for ($i=0; $i < count($letters); $i++) { 
+            if ($letters[$i] == '-') {
+                $letters[$i] = ' ';                
+            } else {
+                $letters[$i] = strtoupper($letters[$i]);
+                for ($x=0; $x < $sectorID; $x++) { 
+                    $letters[$i]++;
+                }
+                $letters[$i] = strtolower(substr($letters[$i], 1));
+            }
+        }
+        $letters = implode('', $letters);
+        return $letters;
     }
 
     protected function extractChecksum(string $name)
@@ -64,12 +88,9 @@ class Decrypter {
         // Ett rum är äkta om checksum är de fem 
         // vanligaste bokstäverna i namnet. 
         // Om antalet är lika så ska de ligga i alfabetisk ordning.
-        #var_dump($this->letters);
         $countedLetters = array_count_values(str_split($this->letters));
-        #var_dump($countedLetters);
         $countedLetters = $this->groupByLetterCount($countedLetters);
         krsort($countedLetters);
-        #var_dump($countedLetters);
         $checksum = [];
         foreach ($countedLetters as $count => $letters) {
             if (count($letters) == 1) {
@@ -77,18 +98,16 @@ class Decrypter {
             } else {
                 sort($letters);
                 for ($i=0; $i < count($letters); $i++) { 
-                    $checksum[$count] = $letters[$i];
+                    $checksum[$count][] = $letters[$i];
                 }
+                $checksum[$count] = implode('', $checksum[$count]);
             }
         }
-        var_dump($checksum);
         krsort($checksum);
-        #var_dump($checksum);
         $checksum = implode('', $checksum);
         if (strlen($checksum) > 5) {
             $checksum = substr($checksum, 0, 5);
         }
-        #var_dump($checksum);
         return ($checksum == $this->checksum);
     }
 

@@ -37,4 +37,11 @@ class TestDecrypter extends TestCase {
         $this->assertFalse($decrypter->validateChecksum());
     }
 
+    public function test_part_two_example()
+    {
+        $name = 'qzmt-zixmtkozy-ivhz-343';
+        $decrypter = new Decrypter($name);
+        $this->assertEquals('very encrypted name', $decrypter->getRealName());
+    }
+
 }
